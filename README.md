@@ -1,9 +1,9 @@
 # supertest-rewrite-json-body
 
-[![NPM](https://badge.fury.io/js/@someimportantcompany%2Fsupertest-rewrite-body.svg)](https://npm.im/supertest-rewrite-json-body)
-[![Test](https://github.com/someimportantcompany/supertest-rewrite-body/actions/workflows/test.yml/badge.svg?branch=master&event=push)](https://github.com/someimportantcompany/supertest-rewrite-body/actions/workflows/test.yml)
+[![NPM](https://badge.fury.io/js/supertest-rewrite-json-body.svg)](https://npm.im/supertest-rewrite-json-body)
+[![Test](https://github.com/someimportantcompany/supertest-rewrite-body/actions/workflows/test.yml/badge.svg?branch=main&event=push)](https://github.com/someimportantcompany/supertest-rewrite-body/actions/workflows/test.yml)
 [![Typescript](https://img.shields.io/badge/TS-TypeScript-%230074c1.svg)](https://www.typescriptlang.org)
-<!-- [![Coverage](https://coveralls.io/repos/github/someimportantcompany/supertest-rewrite-body/badge.svg)](https://coveralls.io/github/someimportantcompany/supertest-rewrite-body) -->
+[![Coverage Status](https://coveralls.io/repos/github/someimportantcompany/supertest-rewrite-json-body/badge.svg?branch=main)](https://coveralls.io/github/someimportantcompany/supertest-rewrite-json-body?branch=main)
 
 Rewrite [`supertest`][] body responses to better reinforce your test suite.
 
