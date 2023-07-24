@@ -1,0 +1,75 @@
+{
+  "name": "@someimportantcompany/supertest-rewrite-json-body",
+  "description": "Rewrite your supertest body to create reliable tests!",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "nyc mocha",
+    "test:mocha": "mocha"
+  },
+  "repository": "https://github.com/someimportantcompany/supertest-rewrite-json-body.git",
+  "author": "jdrydn <james@jdrydn.com> (https://jdrydn.com)",
+  "license": "MIT",
+  "bugs": "https://github.com/someimportantcompany/supertest-rewrite-json-body/issues",
+  "homepage": "https://github.com/someimportantcompany/supertest-rewrite-json-body",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
+  "files": [
+    "./*.cjs",
+    "./*.d.ts"
+  ],
+  "dependencies": {
+    "flat": "^5.0.2",
+    "lodash.set": "^4.3.2",
+    "micromatch": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/flat": "^5.0.2",
+    "@types/koa": "^2.13.6",
+    "@types/lodash.set": "^4.3.7",
+    "@types/micromatch": "^4.0.2",
+    "@types/mocha": "^10.0.1",
+    "@types/supertest": "^2.0.12",
+    "@types/validator": "^13.7.17",
+    "express": "^4.18.2",
+    "koa": "^2.14.2",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "supertest": "^6.3.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "validator": "^13.9.0",
+    "yup": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8"
+  },
+  "mocha": {
+    "exit": true,
+    "recursive": true,
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": "spec",
+    "ignore": [
+      "**/node_modules"
+    ],
+    "spec": [
+      "./{,!(node_modules)/**}/*.test.{,+(js|ts)}"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "*.test.js",
+      "**/*.test.js",
+      "*.test.ts",
+      "**/*.test.ts",
+      "test/"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  }
+}
