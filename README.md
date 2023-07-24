@@ -1,15 +1,15 @@
-# @someimportantcompany/supertest-rewrite-body
+# supertest-rewrite-json-body
 
-[![NPM](https://badge.fury.io/js/@someimportantcompany%2Fsupertest-rewrite-body.svg)](https://npm.im/@someimportantcompany/supertest-rewrite-body)
+[![NPM](https://badge.fury.io/js/@someimportantcompany%2Fsupertest-rewrite-body.svg)](https://npm.im/supertest-rewrite-json-body)
 [![Test](https://github.com/someimportantcompany/supertest-rewrite-body/actions/workflows/test.yml/badge.svg?branch=master&event=push)](https://github.com/someimportantcompany/supertest-rewrite-body/actions/workflows/test.yml)
 [![Typescript](https://img.shields.io/badge/TS-TypeScript-%230074c1.svg)](https://www.typescriptlang.org)
 <!-- [![Coverage](https://coveralls.io/repos/github/someimportantcompany/supertest-rewrite-body/badge.svg)](https://coveralls.io/github/someimportantcompany/supertest-rewrite-body) -->
 
-Rewrite [`supertest`](https://npm.im/supertest) body responses to better reinforce your test suite.
+Rewrite [`supertest`][] body responses to better reinforce your test suite.
 
-```js
+```ts
 import supertest from 'supertest';
-import rewrite from '@someimportantcompany/supertest-rewrite-body';
+import rewrite from 'supertest-rewrite-json-body';
 
 await supertest(app)
   .get('/path/to/resource/some-kind-of-id')
@@ -46,21 +46,22 @@ await supertest(app)
 - Uses [`flat`][], [`micromatch`][] & [`lodash.set`][] to support (similar) results sets & deep pattern matching.
 - Optionally set the replacement value statically to improve the layout of your test suite.
 - **Validates raw values before replacing**, so if the wrong type/format is returned during the test then it should still break!
+- This **will alter** `res.body` directly - see [extracting data](#extracting-data) below.
 
 ## Install
 
 ```sh
-$ npm install --save @someimportantcompany/supertest-rewrite-body
+$ npm install --save supertest-rewrite-json-body
 # or
-$ yarn add @someimportantcompany/supertest-rewrite-body
+$ yarn add supertest-rewrite-json-body
 ```
 
 And from within your test suite:
 
 ```js
-import rewrite from '@someimportantcompany/supertest-rewrite-body';
+import rewrite from 'supertest-rewrite-json-body';
 // or
-const rewrite = require('@someimportantcompany/supertest-rewrite-body');
+const rewrite = require('supertest-rewrite-json-body');
 ```
 
 ## Types
@@ -160,7 +161,7 @@ Method | Description
 ```ts
 rewrite.boolean()
   .value(false)
-  .validate((value: boolean) => !value === true
+  .validate((value: boolean) => !value === true)
 ```
 
 ### `date`
@@ -201,7 +202,7 @@ rewrite.date()
 
 ```ts
 import ms from 'ms';
-import rewrite from '@someimportantcompany/supertest-rewrite-body';
+import rewrite from 'supertest-rewrite-json-body';
 
 rewrite.date().within(ms('30s'))
 ```
@@ -257,10 +258,94 @@ await supertest(app)
   - `.validate(value => validator.isMongoId(value))`
   - `.validate(value => validator.isUUID(value, 4))`
 
+### Extracting data
+
+To keep [`supertest`][] as unchanged as possible, the `rewrite` method **will alter** `res.body`. This means if you `rewrite` an ID you need later, the ID's value will be overwritten for the rewrite:
+
+```ts
+import supertest from 'supertest';
+import rewrite from 'supertest-rewrite-json-body';
+
+await supertest(app)
+  .get('/path/to/resource/some-kind-of-id')
+  .expect(200)
+  // .expect({
+  //   data: {
+  //     type: 'resources',
+  //     id: 'f031d2d7-6484-494f-9897-5f16a596e254',
+  //     attributes: { counter: 42, enabled: false },
+  //     meta: { createdAt: '2023-07-23T21:00:00.000Z' },
+  //   },
+  // })
+  .expect(rewrite({
+    'data.id': rewrite.string(),
+    'data.attributes.counter': rewrite.number(),
+    'data.attributes.enabled': rewrite.boolean(),
+    'data.meta.createdAt': rewrite.date(),
+  }))
+  .expect({
+    data: {
+      type: 'resources',
+      id: ':string:',
+      attributes: { counter: ':number:', enabled: ':boolean:' },
+      meta: { createdAt: ':date:' },
+    },
+  })
+  .expect(res => {
+    // So now you want to cleanup your test
+    // Perhaps by deleting from DB where `id` = `data.id`?
+    // Ah, but at this point `data.id === ":string:"`
+  });
+```
+
+Instead, you should extract your "correct" IDs before running through `rewrite`, like so:
+
+```ts
+import supertest from 'supertest';
+import rewrite from 'supertest-rewrite-json-body';
+
+let createdId: string;
+
+await supertest(app)
+  .get('/path/to/resource/some-kind-of-id')
+  .expect(200)
+  // .expect({
+  //   data: {
+  //     type: 'resources',
+  //     id: 'f031d2d7-6484-494f-9897-5f16a596e254',
+  //     attributes: { counter: 42, enabled: false },
+  //     meta: { createdAt: '2023-07-23T21:00:00.000Z' },
+  //   },
+  // })
+  .expect(res => {
+    if (res.body && typeof res.body.data?.id === 'string) {
+      // Extract the ID you need here, if the ID was indeed set
+      ({ id: createdId } = res.body.data);
+    }
+  })
+  .expect(rewrite({
+    'data.id': rewrite.string(),
+    'data.attributes.counter': rewrite.number(),
+    'data.attributes.enabled': rewrite.boolean(),
+    'data.meta.createdAt': rewrite.date(),
+  }))
+  .expect({
+    data: {
+      type: 'resources',
+      id: ':string:',
+      attributes: { counter: ':number:', enabled: ':boolean:' },
+      meta: { createdAt: ':date:' },
+    },
+  });
+
+// Now cleanup your test with `createdId`
+```
+
 ----
 
 - Questions or feedback? [Open an issue](https://github.com/someimportantcompany/supertest-rewrite-body)!
 
+[`supertest`]: https://npm.im/supertest
 [`flat`]: https://npm.im/flat
 [`micromatch`]: https://npm.im/micromatch
 [`lodash.set`]: https://npm.im/lodash.set

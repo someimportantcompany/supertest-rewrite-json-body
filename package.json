@@ -1,5 +1,5 @@
 {
-  "name": "@someimportantcompany/supertest-rewrite-json-body",
+  "name": "supertest-rewrite-json-body",
   "description": "Rewrite your supertest body to create reliable tests!",
   "version": "1.0.0",
   "scripts": {
