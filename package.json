@@ -1,7 +1,7 @@
 {
   "name": "supertest-rewrite-json-body",
   "description": "Rewrite your supertest body to create reliable tests!",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "test": "nyc mocha",
     "test:mocha": "mocha"
